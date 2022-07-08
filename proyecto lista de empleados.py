@@ -10,13 +10,55 @@ import mysql.connector
 def conexion_base_de_datos():
     conexion = mysql.connector.connect(host="localhost", user="root", passwd="", database="empleados")
     cursor = conexion.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS usuarios(nombre text, clave text)")
+     # tabla datosP Rut	nombre	apellido	sexo	direccion	telefono
+    cursor.execute("CREATE TABLE IF NOT EXISTS datos_personales(rut INT(10) NOT NULL PRIMARY KEY, clave VARCHAR(45),nombre VARCHAR(45),apellido VARCHAR(45),sexo VARCHAR(10),direccion VARCHAR(45),telefono VARCHAR(10))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS cargas_Familiares(rut_carga INT(10) NOT NULL PRIMARY KEY,nombre_carga VARCHAR(45),apellido_carga VARCHAR(45),parentezco VARCHAR(10),direccion VARCHAR(45),telefono VARCHAR(10),sexo VARCHAR(10))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS datos_laborales(id_datosL INT(10) NOT NULL PRIMARY KEY,cargo VARCHAR(45),fecha_ingreso date,area_perteneciente VARCHAR(40),departamento_perteneciente VARCHAR(45))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS contacto_emergencia(rut_contacto INT(10) NOT NULL PRIMARY KEY,nombre_contacto VARCHAR(45),apellido_contacto VARCHAR(45),sexo VARCHAR(10),relacion_con_trabajador VARCHAR(45),telefono VARCHAR(10))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS rol(id INT(10) NOT NULL PRIMARY KEY,rol VARCHAR(45))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS perfil(id INT(10) NOT NULL PRIMARY KEY,permisos varchar(45))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS formulario(id INT(10) NOT NULL PRIMARY KEY,rut_datosP int(10) NOT NULL,CONSTRAINT fk_dp FOREIGN KEY (rut_datosP) REFERENCES datos_personales(rut),rut_carga int(10) NOT NULL, CONSTRAINT fk_cf FOREIGN KEY (rut_carga) REFERENCES cargas_familiares(rut_carga),rut_contacto int(10) NOT NULL,CONSTRAINT fk_contacto FOREIGN KEY (rut_contacto) REFERENCES contacto_emergencia(rut_contacto),id_perfil int(10) NOT NULL,CONSTRAINT fk_idp FOREIGN KEY (id_perfil) REFERENCES perfil(id),id_datosL int(10) NOT NULL,CONSTRAINT fk_dL FOREIGN KEY (id_datosL) REFERENCES datos_laborales(id_datosL))")
     conexion.commit()
     conexion.close()
+
+def insertar_bd():
+    conexion = mysql.connector.connect(host="localhost", user="root", passwd="", database="empleados")
+    cursor = conexion.cursor()
+  #  print("esta es la opcion", opcion)
+    #if opcion=="registro": 
+    cursor.execute("INSERT INTO datos_personales(rut,clave,nombre,apellido,sexo,direccion,telefono) VALUES(%s,%s,%s,%s,%s,%s,%s)",(rut.get(),clave.get(),nombre_usuario.get(),apellido.get(),sexo.get(),direccion.get(),telefono.get()))
+    #if opcion=="carga":
+     #   cursor.execute("")
+    conexion.commit()
+    conexion.close()
+
+def Ventana_modificar_datos():
+    global ventana_modificar_datos
+    ventana_modificar_datos = Toplevel(ventana_inicio)
+    ventana_modificar_datos.title("Modificar datos")
+    ventana_modificar_datos.geometry("300x250")
+    Label(ventana_modificar_datos, text="Modificar datos").pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar datos", command=modificar_datos_personales).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar cargas familiares", command=modificar_cargas_familiares).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar contacto emergencia", command=modificar_contacto_emergencia).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar datos laborales", command=modificar_datos_laborales).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar rol", command=modificar_rol).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar perfil", command=modificar_perfil).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Modificar formulario", command=modificar_formulario).pack()
+    Label(ventana_modificar_datos, text="").pack()
+    Button(ventana_modificar_datos, text="Volver", command=ventana_inicio).pack()
 
 
 #CREAMOS VENTANA PRINCIPAL.
 def ventana_inicio():
+   # modificar_datos()
     conexion_base_de_datos()
     global ventana_principal
     pestas_color="DarkGrey"
@@ -39,32 +81,79 @@ def registro():
     global ventana_registro
     ventana_registro = Toplevel(ventana_principal)
     ventana_registro.title("Registro")
-    ventana_registro.geometry("300x250")
+    ventana_registro.geometry("300x550")
 
     usuarios = []
     global nombre_usuario
+    global apellido
+    global sexo
+    global direccion
+    global telefono
     global clave
+    global rut
+
     global entrada_nombre
     global entrada_clave
+    global entrada_rut
+    global entrada_apellido
+    global entrada_sexo
+    global entrada_direccion
+    global entrada_telefono
+
     nombre_usuario = StringVar() #DECLARAMOS "string" COMO TIPO DE DATO PARA "nombre_usuario"
     clave = StringVar() #DECLARAMOS "sytring" COMO TIPO DE DATO PARA "clave"
- 
+    rut = IntVar() #DECLARAMOS "int" COMO TIPO DE DATO PARA "rut"
+    apellido = StringVar() #DECLARAMOS "string" COMO TIPO DE DATO PARA "apellido"
+    sexo = StringVar() #DECLARAMOS "string" COMO TIPO DE DATO PARA "sexo"
+    direccion = StringVar() #DECLARAMOS "string" COMO TIPO DE DATO PARA "direccion"
+    telefono = StringVar() #DECLARAMOS "STRING" COMO TIPO DE DATO PARA "telefono"
+
     Label(ventana_registro, text="Introduzca datos", bg="LightGreen").pack()
     Label(ventana_registro, text="").pack()
     etiqueta_nombre = Label(ventana_registro, text="Nombre de usuario * ")
     etiqueta_nombre.pack()
     entrada_nombre = Entry(ventana_registro, textvariable=nombre_usuario) #ESPACIO PARA INTRODUCIR EL NOMBRE.
     entrada_nombre.pack()
+
+    etiqueta_apellido=Label(ventana_registro, text="Apellido * ")
+    etiqueta_apellido.pack()
+    entrada_apellido=Entry(ventana_registro, textvariable=apellido)
+    entrada_apellido.pack()
+
+
     etiqueta_clave = Label(ventana_registro, text="Contraseña * ")
     etiqueta_clave.pack()
     entrada_clave = Entry(ventana_registro, textvariable=clave, show='*') #ESPACIO PARA INTRODUCIR LA CONTRASEÑA.
     entrada_clave.pack()
+
+    etiqueta_rut=Label(ventana_registro, text="Rut * ")
+    etiqueta_rut.pack()
+    entrada_rut=Entry(ventana_registro, textvariable=rut)
+    entrada_rut.pack()
+
+    etiqueta_sexo=Label(ventana_registro, text="Sexo * ")
+    etiqueta_sexo.pack()
+    entrada_sexo=Entry(ventana_registro, textvariable=sexo)
+    entrada_sexo.pack()
+
+    etiqueta_direccion=Label(ventana_registro, text="Dirección * ")
+    etiqueta_direccion.pack()
+    entrada_direccion=Entry(ventana_registro, textvariable=direccion)
+    entrada_direccion.pack()
+
+    etiqueta_telefono=Label(ventana_registro, text="Teléfono * ")
+    etiqueta_telefono.pack()
+    entrada_telefono=Entry(ventana_registro, textvariable=telefono)
+    entrada_telefono.pack()
+
     Label(ventana_registro, text="").pack()
-    Button(ventana_registro, text="Registrarse", width=10, height=1, bg="LightGreen", command = registro_usuario).pack() #BOTÓN "Registrarse"
-    Button(ventana_registro, text="Volver", width=5, height=1, bg="LightGreen", command = ventana_registro.withdraw).pack() #BOTÓN "Volver al menu"
+    Button(ventana_registro, text="Registrarse", width=10, height=1, bg="LightGreen", command = insertar_bd).pack() #BOTÓN "Registrarse"
+    Label(ventana_registro, text="").pack()
+    Button(ventana_registro, text="Volver", width=10, height=1, bg="LightGreen", command = ventana_registro.withdraw).pack() #BOTÓN "Volver al menu"
 #CREAMOS VENTANA PARA LOGIN.
 
 def login():
+    ventana_principal.withdraw()
     global ventana_login
     ventana_login = Toplevel(ventana_principal)
     ventana_login.title("Acceso a la cuenta")
